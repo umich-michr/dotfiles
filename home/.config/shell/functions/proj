@@ -1,0 +1,52 @@
+local dir root session
+
+# 1. Dependency Check
+if ! command -v zoxide >/dev/null 2>&1; then
+  echo "err: zoxide not installed"
+  return 1
+fi
+
+# 2. Pick directory
+dir=$(zoxide query -i) || return
+cd "$dir" || return
+
+# 3. Find git root
+if command -v git >/dev/null 2>&1 && git rev-parse --show-toplevel >/dev/null 2>&1; then
+  root=$(git rev-parse --show-toplevel)
+else
+  root="$PWD"
+fi
+cd "$root" || return
+
+# 4. Fallback if tmux is missing
+if ! command -v tmux >/dev/null 2>&1; then
+  echo "Note: tmux not found. Staying in shell at: $root"
+  return 0
+fi
+
+# 5. Clean session name
+session="$(basename "$root" | sed 's/[^a-zA-Z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')"
+
+# 6. Attach if exists
+if tmux has-session -t "$session" 2>/dev/null; then
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+  return
+fi
+
+# 7. Create new session with specific naming
+# -n defines the first window name
+tmux new-session -d -s "$session" -n "$session" -c "$root"
+
+# 8. Set Pane Title (Requires 'set-titles' or 'pane-border-status' in tmux.conf to see it)
+tmux select-pane -t "$session:0.0" -T "shell"
+
+# 9. Attach/Switch
+if [[ -n "$TMUX" ]]; then
+  tmux switch-client -t "$session"
+else
+  tmux attach-session -t "$session"
+fi

@@ -1,0 +1,62 @@
+# Usage: 
+#   proxy start [host] [port]
+#   proxy stop [port]
+#   proxy stat [port]
+#
+# Default: port=1080
+proxy() {
+  local cmd="$1"
+  local target port search_str pid
+
+  case "$cmd" in
+    start)
+      target="$2"
+      port="${3:-1080}"
+      
+      if [[ -z "$target" ]]; then
+        echo "Usage: proxy start [host] [port]"
+        return 1
+      fi
+      
+      if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null; then
+        echo "❌ Port $port is already in use."
+        return 1
+      fi
+
+      ssh -D $port -f -N "$target"
+      echo "✅ SOCKS proxy started on port $port via $target"
+      ;;
+
+    stop|stat|status)
+      # If $2 is a number, use it as the port. Otherwise, default to 1080.
+      if [[ "$2" =~ ^[0-9]+$ ]]; then
+        port="$2"
+      else
+        port="1080"
+      fi
+
+      search_str="ssh -D $port"
+      
+      if [[ "$cmd" == "stop" ]]; then
+        if pkill -f "$search_str"; then
+          echo "🛑 Proxy on port $port stopped."
+        else
+          echo "❌ No active proxy found on port $port."
+        fi
+      else
+        pid=$(pgrep -f "$search_str")
+        if [[ -n "$pid" ]]; then
+          echo "✅ Proxy (PID: $pid) is ACTIVE on port $port"
+          lsof -i :$port | grep LISTEN
+        else
+          echo "❌ No proxy found for port $port."
+        fi
+      fi
+      ;;
+
+    *)
+      echo "Commands: start, stop, stat"
+      echo "Example: proxy start my-server 1090"
+      ;;
+  esac
+}

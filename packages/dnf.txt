@@ -1,0 +1,15 @@
+git
+curl
+tmux
+ripgrep
+fzf
+zoxide
+direnv
+starship
+eza
+fastfetch
+btop
+bat
+xclip
+wl-clipboard
+shellcheck

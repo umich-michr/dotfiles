@@ -1,0 +1,42 @@
+name: Dotfiles CI
+
+on:
+push:
+pull_request:
+
+jobs:
+test:
+strategy:
+matrix:
+os: [ubuntu-latest, macos-latest]
+
+```
+runs-on: ${{ matrix.os }}
+
+steps:
+  - uses: actions/checkout@v4
+
+  - name: Install shellcheck (Linux)
+    if: runner.os == 'Linux'
+    run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+  - name: Install shellcheck (macOS)
+    if: runner.os == 'macOS'
+    run: brew install shellcheck
+
+  - name: Lint scripts
+    run: |
+      find scripts -name "*.sh" -print0 | xargs -0 shellcheck
+
+  - name: Dry run install
+    run: |
+      DRY_RUN=true bash scripts/install.sh
+
+  - name: Real install
+    run: |
+      bash scripts/install.sh
+
+  - name: Run doctor
+    run: |
+      bash scripts/doctor.sh
+```

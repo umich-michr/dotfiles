@@ -1,0 +1,58 @@
+# Usage: 
+#   ssh-tunnel start [host] [local_port] [remote_port] 
+#   ssh-tunnel stop [local_port]
+#   ssh-tunnel stat [local_port]
+ssh-tunnel() {
+  local cmd="$1"
+  local target l_port r_port
+
+  case "$cmd" in
+    start)
+      # 1. First arg after 'start' is the host
+      target="$2"
+      
+      # 2. Intelligently pick ports or defaults
+      l_port="${3:-5000}"
+      r_port="${4:-8081}"
+
+      if [[ -z "$target" ]]; then
+        echo "Usage: ssh-tunnel start [host] [local_port] [remote_port]"
+        return 1
+      fi
+
+      if lsof -Pi :$l_port -sTCP:LISTEN -t >/dev/null; then
+        echo "❌ Port $l_port is already in use."
+        return 1
+      fi
+
+      ssh -L $l_port:127.0.0.1:$r_port -f -N "$target"
+      echo "✅ Tunnel established: localhost:$l_port -> $target:$r_port"
+      ;;
+
+    stop|stat|status)
+      # Logic: if $2 is a number, it's the port. If empty, it's 5000.
+      if [[ "$2" =~ ^[0-9]+$ ]]; then
+        l_port="$2"
+      else
+        l_port="5000"
+      fi
+
+      local search_str="ssh -L $l_port:127.0.0.1:"
+      
+      if [[ "$cmd" == "stop" ]]; then
+        pkill -f "$search_str" && echo "🛑 Tunnel on port $l_port closed." || echo "❌ No tunnel found on port $l_port."
+      else
+        local pid=$(pgrep -f "$search_str")
+        if [[ -n "$pid" ]]; then
+          echo "✅ Tunnel (PID: $pid) is RUNNING on port $l_port"
+        else
+          echo "❌ No tunnel found for port $l_port."
+        fi
+      fi
+      ;;
+
+    *)
+      echo "Commands: start, stop, stat"
+      ;;
+  esac
+}

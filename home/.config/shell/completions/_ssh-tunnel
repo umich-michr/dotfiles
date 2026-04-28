@@ -1,0 +1,24 @@
+#compdef ssh-tunnel
+
+local curcontext="$curcontext" state line
+local -a ssh_hosts
+
+if [[ -f ~/.ssh/config ]]; then
+  ssh_hosts=($(grep -i "^Host " ~/.ssh/config | grep -v "[*?]" | awk '{print $2}'))
+fi
+
+_arguments \
+  '1: :->command' \
+  '2: :->args' \
+  '*: : '
+
+case $state in
+  command)
+    compadd start stop stat status
+    ;;
+  args)
+    if [[ "$words[2]" == "start" ]]; then
+      compadd -a ssh_hosts
+    fi
+    ;;
+esac

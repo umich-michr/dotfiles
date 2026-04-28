@@ -1,0 +1,30 @@
+#compdef proxy
+
+local curcontext="$curcontext" state line
+local -a ssh_hosts
+
+if [[ -f ~/.ssh/config ]]; then
+  ssh_hosts=($(grep -i "^Host " ~/.ssh/config | grep -v "[*?]" | awk '{print $2}'))
+fi
+
+_arguments \
+  '1: :->command' \
+  '2: :->host_or_port' \
+  '3:port:->port' \
+  '*:: :_default'
+
+case $state in
+  command)
+    compadd start stop stat status
+    ;;
+  host_or_port)
+    if [[ "$words[2]" == "start" ]]; then
+      compadd -a ssh_hosts
+    else
+      compadd 1080 1090 1100
+    fi
+    ;;
+  port)
+    compadd 1080 1090 1100
+    ;;
+esac

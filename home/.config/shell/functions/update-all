@@ -1,0 +1,49 @@
+echo "🚀 Starting global update (System: $PLATFORM)..."
+
+# 1. Package Manager (Brew for Mac/Linux or Apt for Linux)
+if command -v brew >/dev/null; then
+  echo "📦 Updating Homebrew..."
+  brew update && brew upgrade
+elif command -v apt-get >/dev/null; then
+  echo "📦 Updating Apt..."
+  sudo apt-get update && sudo apt-get upgrade -y
+fi
+
+# 2. Zimfw (Detect installation type)
+if command -v zimfw >/dev/null; then
+  local zim_path=$(whence -p zimfw)
+  if [[ "$zim_path" == *".zim"* ]] || [[ "$zim_path" == "$HOME"* ]]; then
+    echo "❄️ Updating Zimfw (Script install)..."
+    zimfw upgrade && zimfw update
+  else
+    echo "❄️ Updating Zimfw (Package Manager)..."
+    zimfw update
+  fi
+fi
+
+# 3. Mise Detection 
+if command -v mise >/dev/null; then
+  local mise_bin=$(whence -p mise)
+  # Check if mise is NOT in a system/brew path
+  if [[ "$mise_bin" == "$HOME"* ]] || [[ "$mise_bin" == "/usr/local/bin/mise" ]]; then
+    echo "🛠 Updating Mise (Manual)..."
+    mise self-update -y && mise upgrade --install
+  else
+    echo "🛠 Mise (Package Manager): Skipping self-update, upgrading runtimes..."
+    mise upgrade
+  fi
+fi
+
+# 4. Starship (Only if NOT installed via brew/apt)
+if command -v starship >/dev/null; then
+  local starship_path=$(whence -p starship)
+  if [[ "$starship_path" == "/usr/local/bin/starship" ]] || [[ "$starship_path" == "$HOME"* ]]; then
+    echo "⭐ Updating Starship (Manual install)..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+  fi
+fi
+
+echo "🧹 Cleaning completion cache..."
+rm -f ~/.zcompdump*
+echo "✅ All tools updated. Restarting shell..."
+exec zsh

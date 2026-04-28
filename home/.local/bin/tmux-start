@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Avoid nested tmux
+if [ -n "$TMUX" ]; then
+  echo "You are already in tmux"
+  exit 0
+fi
+
+# Ensure tmux exists
+if ! command -v tmux >/dev/null 2>&1; then
+  echo "tmux not installed"
+  exit 1
+fi
+
+SESSION="main"
+if command -v git >/dev/null 2>&1; then
+  DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -n "$DIR" ]; then
+    SESSION=$(basename "$DIR")
+  fi
+fi
+
+exec tmux new-session -A -s "$SESSION"
