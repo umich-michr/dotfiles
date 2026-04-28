@@ -1,18 +1,22 @@
 # Portable Zsh Environment
 
-A cross-platform, reproducible Zsh environment for macOS (Apple Silicon) and Linux (Fedora, Ubuntu, Mint).
-
-This repository provides a consistent developer shell experience with:
-
-* XDG-compliant layout
-* Strict separation of login vs interactive shell
-* Per-project toolchains via `mise`
-* Cross-platform clipboard support (Wayland + X11 + macOS)
-* Reproducible installs via package manifests
+A cross-platform, reproducible Zsh environment for macOS and Linux.
 
 ---
 
-## Quick Start (Recommended)
+## Overview
+
+This setup provides:
+
+* XDG-compliant structure
+* Clean separation of login vs interactive shell
+* Reproducible toolchains via `mise`
+* Optional per-directory environments via `direnv`
+* Portable behavior across macOS and Linux
+
+---
+
+## Quick Start
 
 ```bash
 git clone https://github.com/your-org/dotfiles.git ~/.dotfiles
@@ -28,20 +32,18 @@ exec zsh
 
 ---
 
-## What This Sets Up
-
-### Shell Architecture
+## Architecture
 
 | Layer       | File        | Responsibility                          |
 | ----------- | ----------- | --------------------------------------- |
-| Login shell | `.zprofile` | Environment, PATH, toolchain activation |
-| Interactive | `.zshrc`    | UI, prompt, aliases, runtime tools      |
+| Login       | `.zprofile` | Environment, PATH, toolchain activation |
+| Interactive | `.zshrc`    | Prompt, aliases, runtime tools          |
 
 ---
 
-### Directory Layout
+## Directory Layout
 
-```text
+```
 ~/.config/shell/
 ├── env.zsh
 ├── path.zsh
@@ -56,58 +58,50 @@ exec zsh
 
 ---
 
-### Included Tools
+## Tooling
 
-* `mise` — language/runtime manager
-* `zoxide` — smarter directory navigation
-* `tmux` — persistent sessions
-* `starship` — prompt
-* `direnv` — per-directory environment loading
-* `fzf` — fuzzy finder
-* `bat` — improved `cat`
-
----
-
-## Platform Support
-
-### macOS
-
-* Uses Homebrew
-
-### Linux
-
-* Fedora → `dnf`
-* Ubuntu / Mint → `apt`
+* `mise` → language/runtime manager
+* `zoxide` → smarter navigation
+* `tmux` → persistent sessions
+* `starship` → prompt
+* `direnv` → optional env loader
+* `fzf` → fuzzy finder
+* `bat` → improved cat
 
 ---
 
-## Installation Details
+## Zsh Framework (Zim)
 
-The installer will:
+Zim is used for modular shell configuration.
 
-1. Detect platform and package manager
-2. Install dependencies from:
-
-   * `packages/Brewfile`
-   * `packages/apt.txt`
-   * `packages/dnf.txt`
-3. Fallback to upstream installers if needed
-4. Configure clipboard support:
-
-   * Wayland → `wl-copy`
-   * X11 → `xclip`
-5. Symlink configuration into `$HOME`
-6. Output an install report
+* Installed automatically during setup
+* Config file: `~/.zimrc`
 
 ---
 
 ## Fonts (Required)
 
-Install a Nerd Font for proper rendering:
+Install a Nerd Font for icons.
 
-* Recommended: JetBrainsMono Nerd Font
+### macOS
 
-Verify:
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-jetbrains-mono-nerd-font
+```
+
+### Linux
+
+```bash
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+
+curl -LO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip JetBrainsMono.zip
+fc-cache -fv
+```
+
+Test:
 
 ```bash
 echo "✔ Icons:   "
@@ -115,9 +109,9 @@ echo "✔ Icons:   "
 
 ---
 
-## Per-Project Toolchains (mise)
+## mise (Toolchains)
 
-Example `mise.toml`:
+Example:
 
 ```toml
 [tools]
@@ -134,22 +128,35 @@ mise install
 
 ---
 
-## Clipboard Behavior
+## direnv (Optional)
 
-Automatically selects:
+Enable:
+
+```bash
+eval "$(direnv hook zsh)"
+```
+
+Example `.envrc`:
+
+```bash
+use mise
+```
+
+Then:
+
+```bash
+direnv allow
+```
+
+---
+
+## Clipboard
+
+Auto-detected:
 
 * macOS → `pbcopy`
 * Wayland → `wl-copy`
 * X11 → `xclip`
-
----
-
-## Developer Commands
-
-```bash
-scripts/doctor.sh   # validate environment
-scripts/install.sh  # reinstall / update
-```
 
 ---
 
@@ -162,38 +169,31 @@ bash ~/.dotfiles/scripts/install.sh
 
 ---
 
-## Extending
-
-| Add               | Location             |
-| ----------------- | -------------------- |
-| aliases           | `shell/aliases.zsh`  |
-| functions         | `shell/functions/`   |
-| completions       | `shell/completions/` |
-| OS-specific logic | `shell/os/`          |
-| integrations      | `shell/tools/`       |
-
----
-
-## Secrets
-
-Store machine-specific values in:
-
-```text
-~/.secrets
-```
-
-Not tracked in git.
-
----
-
 ## Troubleshooting
 
 ```bash
-echo $PATH
-mise doctor
-direnv status
-which proj
+scripts/doctor.sh
 ```
+
+### Common Issues
+
+**mise not working**
+
+```bash
+mise doctor
+mise trust
+```
+
+**direnv not loading**
+
+```bash
+direnv allow
+```
+
+**icons not rendering**
+
+* ensure Nerd Font installed
+* set terminal font manually
 
 ---
 
@@ -201,15 +201,8 @@ which proj
 
 * Minimal login shell
 * Modular runtime
-* Cross-platform first
+* Cross-platform consistency
 * No machine-specific assumptions
-* Reproducible installs
-
----
-
-## Contributing
-
-See `CONTRIBUTING.md`.
 
 ---
 

@@ -1,4 +1,5 @@
 git
+git-delta
 curl
 tmux
 ripgrep
@@ -12,4 +13,12 @@ btop
 bat
 xclip
 wl-clipboard
+fd
+lazygit
 shellcheck
+shfmt
+neovim
+build-essential
+#imagemagick
+#ghostscript
+#texlive-latex-base

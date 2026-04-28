@@ -7,8 +7,8 @@ FORCE="${FORCE:-false}"
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="${HOME}/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
-log()  { echo -e "$1"; }
-ok()   { log "✔ $1"; }
+log() { echo -e "$1"; }
+ok() { log "✔ $1"; }
 warn() { log "⚠ $1"; }
 
 run() {
@@ -32,7 +32,8 @@ link() {
 
   run mkdir -p "$(dirname "$dest")"
 
-  if [[ -L "$dest" ]]; then
+  # If already correct symlink → do nothing
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
     ok "Already linked: $dest"
     return
   fi
@@ -54,11 +55,31 @@ echo "🔗 Linking dotfiles..."
 
 link "$DOTFILES_DIR/home/.zshrc" "$HOME/.zshrc"
 link "$DOTFILES_DIR/home/.zprofile" "$HOME/.zprofile"
+link "$DOTFILES_DIR/home/.zimrc" "$HOME/.zimrc"
 link "$DOTFILES_DIR/home/.config/shell" "$HOME/.config/shell"
 link "$DOTFILES_DIR/home/.config/tmux" "$HOME/.config/tmux"
 link "$DOTFILES_DIR/home/.config/alacritty" "$HOME/.config/alacritty"
+link "$DOTFILES_DIR/home/.config/nvim" "$HOME/.config/nvim"
+link "$DOTFILES_DIR/home/.config/mise" "$HOME/.config/mise"
 link "$DOTFILES_DIR/home/.local/bin/tmux-start" "$HOME/.local/bin/tmux-start"
-
 run chmod +x "$HOME/.local/bin/tmux-start"
+before="$(mktemp)"
+run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "zimfw list" >"$before" || true
+
+ok "Syncing Zim modules..."
+ZIM_CMD='
+  if command -v zimfw >/dev/null 2>&1; then
+    zimfw install
+    zimfw update
+    zimfw uninstall
+  else
+    echo "zimfw not found, skipping"
+  fi
+'
+run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "$ZIM_CMD"
+after="$(mktemp)"
+run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "zimfw list" > "$after" || true
+echo "Zim module changes:"
+diff -u "$before" "$after" || true
 
 echo "✅ Linking complete"

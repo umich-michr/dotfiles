@@ -1,0 +1,9 @@
+[tools]
+node   = "lts"
+python = "latest"
+rust   = "stable"
+java   = "lts" 
+
+[settings]
+java.shorthand_vendor = "openjdk"
+

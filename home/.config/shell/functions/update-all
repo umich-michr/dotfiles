@@ -43,6 +43,18 @@ if command -v starship >/dev/null; then
   fi
 fi
 
+# 5. Neovim (LazyVim, Mason, Treesitter)
+if command -v nvim >/dev/null; then
+  echo "💤 Updating Neovim (LazyVim, Mason, Treesitter)..."
+  # We use the '--headless' flags and manual loading of Mason to ensure it works in scripts
+  nvim --headless \
+    "+Lazy! sync" \
+    "+lua require('lazy').load({plugins = {'mason.nvim'}})" \
+    "+MasonUpdate" \
+    "+TSUpdate" \
+    +qa
+fi
+
 echo "🧹 Cleaning completion cache..."
 rm -f ~/.zcompdump*
 echo "✅ All tools updated. Restarting shell..."

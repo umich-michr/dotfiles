@@ -1,5 +1,18 @@
 u.secrets
 *.log
 .DS_Store
-*.swp
 .dotfiles_backup_*
+
+# Package Manager folders
+/plugin/
+/lazy-lock.json (Optional: remove this if you want to keep plugin versions synced)
+
+# Neovim internal state (not portable)
+.netrwhist
+undo/
+spell/
+shada/
+
+# Swap files
+*.swp
+*.swo
