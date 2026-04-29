@@ -9,16 +9,26 @@ fi
 
 _arguments \
   '1: :->command' \
-  '2: :->args' \
-  '*: : '
+  '2: :->host_or_port' \
+  '3:local-port:->local-port' \
+  '4:remote-port:->remote-port' \
+  '*:: :_default'
 
 case $state in
-  command)
-    compadd start stop stat status
-    ;;
-  args)
-    if [[ "$words[2]" == "start" ]]; then
-      compadd -a ssh_hosts
-    fi
-    ;;
+command)
+  compadd start stop stat status
+  ;;
+host_or_port)
+  if [[ "$words[2]" == "start" ]]; then
+    compadd -a ssh_hosts
+  else
+    compadd 5000 5001 5002
+  fi
+  ;;
+local-port)
+  compadd 5000 5001 5002
+  ;;
+remote-port)
+  compadd 8080 8081 8000 8082 9000
+  ;;
 esac

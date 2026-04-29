@@ -27,11 +27,13 @@ if command -v mise >/dev/null; then
   # Check if mise is NOT in a system/brew path
   if [[ "$mise_bin" == "$HOME"* ]] || [[ "$mise_bin" == "/usr/local/bin/mise" ]]; then
     echo "🛠 Updating Mise (Manual)..."
-    mise self-update -y && mise upgrade --install
+    mise self-update -y && mise upgrade
   else
     echo "🛠 Mise (Package Manager): Skipping self-update, upgrading runtimes..."
     mise upgrade
+    mise plugins update
   fi
+  mise ls --current
 fi
 
 # 4. Starship (Only if NOT installed via brew/apt)

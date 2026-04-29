@@ -34,4 +34,18 @@ return {
       },
     },
   },
+
+  {
+    "nvim-telescope/telescope.nvim",
+    opts = {
+      extensions = {},
+      pickers = {
+        buffers = {
+          show_all_buffers = true,
+          sort_lastused = true,
+          ignore_current_buffer = true,
+        },
+      },
+    },
+  },
 }

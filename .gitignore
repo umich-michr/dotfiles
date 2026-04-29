@@ -16,3 +16,6 @@ shada/
 # Swap files
 *.swp
 *.swo
+
+lazy-lock.json
+
