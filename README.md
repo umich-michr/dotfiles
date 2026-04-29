@@ -86,7 +86,6 @@ Install a Nerd Font for icons.
 ### macOS
 
 ```bash
-brew tap homebrew/cask-fonts
 brew install --cask font-jetbrains-mono-nerd-font
 ```
 

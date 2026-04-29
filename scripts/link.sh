@@ -38,6 +38,13 @@ link() {
     return
   fi
 
+  if [[ -e "$dest" && ! -L "$dest" && "$(basename "$dest")" == ".zimrc" ]]; then
+    if grep -qiE 'zimfw|ZIM_HOME|# zim' "$dest" >/dev/null 2>&1; then
+      warn "$dest looks like zim's default file — replacing with dotfiles version"
+      backup_file "$dest"
+    fi
+  fi
+
   if [[ -e "$dest" ]]; then
     if [[ "$FORCE" == "true" ]]; then
       backup_file "$dest"
@@ -78,7 +85,7 @@ ZIM_CMD='
 '
 run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "$ZIM_CMD"
 after="$(mktemp)"
-run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "zimfw list" > "$after" || true
+run env -i HOME="$HOME" ZDOTDIR="$HOME" zsh -ic "zimfw list" >"$after" || true
 echo "Zim module changes:"
 diff -u "$before" "$after" || true
 
