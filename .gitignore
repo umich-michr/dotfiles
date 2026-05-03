@@ -1,4 +1,4 @@
-u.secrets
+.secrets
 *.log
 .DS_Store
 .dotfiles_backup_*
@@ -18,4 +18,5 @@ shada/
 *.swo
 
 lazy-lock.json
-
+local.zsh
+.local.zsh

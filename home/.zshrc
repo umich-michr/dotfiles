@@ -15,3 +15,6 @@ source "$HOME/.config/shell/runtime/direnv.zsh"
 # user config
 source "$HOME/.config/shell/aliases.zsh"
 source "$HOME/.config/shell/clipboard.zsh"
+
+# Load local overrides (git-ignored)
+[ -f "$HOME/.config/shell/.local.zsh" ] && source "$HOME/.config/shell/.local.zsh"

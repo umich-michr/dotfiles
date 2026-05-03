@@ -8,9 +8,9 @@ A cross-platform, reproducible Zsh environment for macOS and Linux.
 
 This setup provides:
 
-* XDG-compliant structure
+* XDG-compliant structure: Ypur home directory stays clean.
 * Clean separation of login vs interactive shell
-* Reproducible toolchains via `mise`
+* Reproducible toolchains via `mise`: Toolchains (Node, Python, Java, Rust) are sandboxed per-project
 * Optional per-directory environments via `direnv`
 * Portable behavior across macOS and Linux
 
@@ -55,6 +55,53 @@ exec zsh
 ├── tools/
 └── os/
 ```
+
+---
+
+## Extending & Customizing (The Rules)
+
+### 1. Personal Customizatons (Do NOT Commit)
+
+Need a quick alias, a custom function, or a temporary environment variable?
+**Do not edit the core files.** Instead, use the local override file:
+
+```bash
+touch ~/.config/shell/.local.zsh
+```
+
+Add your personal settings here. This file is ignored by Git, ensuring you will never get merge conflicts when the team updates the core dotfiles. For sensitive tokens, use ~/.secrets.
+
+### 2. Team-Wide Customizations (Please Coomit & PR)
+
+If a tool or alias benefits the whole team:
+
+* **Aliases:** Add to ~/.config/shell/clipboard.zsh
+* **Global Functions:** Drop a new file in ~/.config/shell/functions/ (It autoloads, no sourcing required!)
+* **Package Depenedencies**: Add to packages/Brewfile, apt.txt, or dnf.txt
+
+---
+
+## Keeping Updated
+
+To get the latest team standards, simply pull the repository and run the installer again. It will safely link new files and install new dependencies.
+
+```bash
+cd ~/.dotfiles
+git pull origin main
+./scripts/install.sh
+```
+
+We also provide a global update utility. Running update-all anywhere in your terminal will upgrade Homebrew, Apt/Dnf, Zim modules, and Mise toolchains instantly.
+
+---
+
+### Per-Project Toolchains (mise)
+
+We do not install languages globally. To use Node, Python, Java, or Rust:
+
+1. Ensure your project has a ```mise.toml``` defining the versions.
+2. Run ```mise``` install inside that directory.
+3. The tools will instantly activate when you enter the directory.
 
 ---
 
