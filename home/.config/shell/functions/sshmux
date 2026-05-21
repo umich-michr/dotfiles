@@ -1,0 +1,34 @@
+sshmux() {
+  local pattern="$1"
+
+  local hosts
+  hosts=($(ssh-hosts "$pattern"))
+
+  if [[ ${#hosts[@]} -eq 0 ]]; then
+    echo "No hosts matched: $pattern"
+    return 1
+  fi
+
+  tmux new-window -n "$pattern"
+
+  local count=${#hosts[@]}
+
+  for ((i = 2; i <= count; i++)); do
+    tmux split-window
+  done
+
+  tmux select-layout tiled
+
+  local pane=0
+
+  for host in "${hosts[@]}"; do
+    tmux send-keys -t ".$pane" "ssh $host" C-m
+
+    # pane title
+    tmux select-pane -t ".$pane" -T "$host"
+
+    ((pane++))
+  done
+
+  tmux select-layout tiled
+}

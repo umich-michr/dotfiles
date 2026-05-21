@@ -1,0 +1,6 @@
+ssh-script() {
+  host="$1"
+  script="$2"
+
+  ssh "$host" 'bash -s' <"$script"
+}

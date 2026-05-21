@@ -1,0 +1,17 @@
+#serial command broadcaster over SSH
+sshm() {
+  local pattern="$1"
+  shift
+
+  local host
+
+  for host in $(ssh-hosts "$pattern"); do
+    echo "===== $host ====="
+
+    if [[ "$1" == sudo ]]; then
+      ssh -tt "$host" "$@"
+    else
+      ssh "$host" "$@"
+    fi
+  done
+}

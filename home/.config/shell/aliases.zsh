@@ -20,4 +20,4 @@ alias starty="(ps -ef | grep -v grep | grep X11 || (startx)) 1>/dev/null"
 alias sshx="export DISPLAY=:0.0 && (starty) && ssh -Y"
 alias killx="killall Xquartz"
 
-alias nvupdate='nvim --headless "+Lazy! sync" "+MasonUpdate" "+TSUpdate" +qa'
+#alias nvupdate='nvim --headless "+Lazy! sync" "+MasonUpdate" "+TSUpdate" +qa'

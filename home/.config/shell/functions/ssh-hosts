@@ -1,0 +1,8 @@
+ssh-hosts() {
+  pattern="${1:-}"
+
+  grep '^Host ' ~/.ssh/config |
+    awk '{for (i=2; i<=NF; i++) print $i}' |
+    grep -v '\*' |
+    grep "$pattern"
+}

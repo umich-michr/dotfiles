@@ -1,0 +1,14 @@
+# parallel command broadcaster over SSH
+sshp() {
+  local pattern="$1"
+  shift
+
+  ssh-hosts "$pattern" | xargs -P 10 -I{} sh -c '
+    host="$1"
+    shift
+
+    ssh "$host" "$@" 2>&1 | while IFS= read -r line; do
+      printf "[%s] %s\n" "$host" "$line"
+    done
+  ' sh {} "$@"
+}

@@ -255,3 +255,149 @@ direnv allow
 ## Result
 
 A portable, predictable, team-ready shell environment.
+
+---
+
+## Team Operations Toolkit (SSH Fleet + tmux)
+
+This repository includes a lightweight SSH fleet system for managing multiple servers safely and consistently.
+
+It is built around:
+
+* ssh-hosts → host discovery from ~/.ssh/config
+* sshp → parallel inspection
+* sshm → safe orchestration (serial execution)
+* sshmux → tmux war-room mode
+* ssh-script → remote script execution
+* sshv → remote interactive vim editing
+
+* tmux sync mode (Prefix + S)
+
+---
+
+## Core Idea
+
+We treat infrastructure as a **fleet of hosts**, not individual machines.
+
+Host naming convention:
+
+```
+<app-name>[-<adopting-institution>]-<environment>
+```
+
+**app-name:** The unique identifier of the application.
+**adopting-institution:** Optional. The organization hosting or using the instance.
+**environment:** The deployment stage. Must be exactly one of: dev, test, staging, or prod
+
+Examples:
+
+* yhr-umich-test
+* yhr-itm-prod
+* nabu-test
+
+---
+
+## Available Commands
+
+### Parallel Inspection (sshp)
+
+```bash
+sshp '<pattern>' <command>
+
+sshp 'yhr-.*-test' uptime
+sshp 'yhr-.*-test' sudo df -h
+```
+
+Examples:
+
+## Safe Orchestration (sshm)
+
+Serial execution across hosts:
+
+```bash
+sshm '<pattern>' <command>
+
+sshm 'yhr-.*-test' sudo systemctl restart shibd
+sshm nabu sudo ls -al /home/michr-developers
+```
+
+**Behavior**
+
+* Runs one host at a time
+* Safer for destructive operations
+* Preserves execution order
+
+## Parallel Inspection (sshp)
+
+Runs commands in parallel across hosts.
+
+```bash
+sshp '<pattern>' <command>
+
+sshp 'yhr-.*-test' uptime
+sshp 'yhr-.*-test' df -h
+sshp nabu sudo ls -al
+```
+
+**Behavior**
+
+* Executes in parallel (xargs -P 10)
+* Prefixes output with host name
+* Read-only safe operations
+
+## Remote Script Execution (ssh-script)
+
+Executes a local script on a remote machine.
+
+```bash
+ssh-script <host> <script>
+
+ssh-script yhr-umich-test ./scripts/deploy.sh
+```
+
+**Use cases**
+
+* deployments
+* migrations
+* repeatable admin tasks
+* running local tooling remotely without copying files
+
+## Remote Interactive Editing (sshv)
+
+Open remote files using vim over SSH.
+
+```bash
+sshv <host> <file>
+
+sshv yhr-umich-test /etc/hosts
+```
+
+## Fleet War Room (sshmux)
+
+Launch tmux-based multi-host sessions:
+
+```bash
+sshmux '<pattern>'
+
+sshmux 'yhr-.*-test'
+```
+
+**Behavior**
+
+* Creates tmux window
+* Splits into panes
+* Assigns each pane to a host
+* Runs ssh host automatically
+* Sets pane title to hostname
+
+### tmux Ops Mode
+
+Inside tmux fleet sessions:
+
+Sync Mode (broadcast input)
+
+Toggle:
+
+Prefix + S
+
+Used for synchronized execution across panes.

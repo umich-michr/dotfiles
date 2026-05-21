@@ -1,0 +1,7 @@
+sshv() {
+  host="$1"
+  shift
+
+  # -t allocates an interactive TTY required by vim, top, less, tmux, sudo sometimes. Without terminal rendering may break
+  ssh -t "$host" "vim $*"
+}
